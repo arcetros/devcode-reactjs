@@ -103,7 +103,7 @@ const Modal: React.FunctionComponent<ModalProps> = ({
 
                 <div className="pt-[38px] pr-[41px] pb-[38px] pl-[30px] relative flex-auto">
                   <label className="text-xs font-bold text-neutral-600">NAMA LIST ITEM</label>
-                  <div className="mt-[9px] mb-[26px]">
+                  <div data-cy="modal-add-name-input" className="mt-[9px] mb-[26px]">
                     <input
                       type="text"
                       name="title"
@@ -124,7 +124,10 @@ const Modal: React.FunctionComponent<ModalProps> = ({
                       }
                     >
                       <div className="relative max-w-[205px] mt-1 z-50">
-                        <Listbox.Button className="flex space-x-5 items-center relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white h-[52px] focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
+                        <Listbox.Button
+                          className="flex space-x-5 items-center relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white h-[52px] focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                          data-cy="modal-add-priority-dropdown"
+                        >
                           <span
                             className={`rounded-full w-[14px] h-[14px] ${selected?.priority.color}`}
                           ></span>
@@ -180,7 +183,9 @@ const Modal: React.FunctionComponent<ModalProps> = ({
                 <div className="flex border-t py-[15px] px-[40px]">
                   <button
                     onClick={() => onSubmitTodo()}
-                    className="bg-[#7fc9fa] ml-auto w-[159px] h-[54px] rounded-[45px] flex items-center text-white justify-center cursor-pointer"
+                    data-cy="modal-add-save-button"
+                    disabled={!selected.title}
+                    className="bg-[#7fc9fa] ml-auto w-[159px] h-[54px] rounded-[45px] flex items-center text-white justify-center cursor-pointer disabled:cursor-not-allowed"
                   >
                     <span className="flex items-center gap-x-1 font-medium text-lg">Simpan</span>
                   </button>

@@ -47,10 +47,15 @@ const Dashboard: React.FunctionComponent = () => {
   return (
     <div>
       <header className="flex items-center justify-between mt-[43px] pb-[55px]">
-        <h2 onClick={() => setShowInfo(true)} className="text-4xl font-bold">
+        <h2
+          data-cy="activity-title"
+          onClick={() => setShowInfo(true)}
+          className="text-4xl font-bold"
+        >
           Activity
         </h2>
         <button
+          data-cy="activity-add-button"
           onClick={() => onAddActivity()}
           className="bg-[#16ABF8] w-[159px] h-[54px] rounded-[45px] flex items-center text-white justify-center cursor-pointer"
         >

@@ -58,6 +58,7 @@ const ActivityItem: React.FunctionComponent<ActivityItem> = ({
             type="checkbox"
             defaultChecked={checked}
             value={id}
+            data-cy="todo-item-checkbox"
             onChange={async (event) => {
               setChecked(!checked)
               await fetch(`${API_ENDPOINT}/todo-items/${event.target.value}`, {
@@ -75,7 +76,11 @@ const ActivityItem: React.FunctionComponent<ActivityItem> = ({
             <Edit />
           </span>
         </div>
-        <span className="cursor-pointer" onClick={() => setIsDelete(true)}>
+        <span
+          data-cy="todo-item-delete-button"
+          className="cursor-pointer"
+          onClick={() => setIsDelete(true)}
+        >
           <Trash />
         </span>
       </div>

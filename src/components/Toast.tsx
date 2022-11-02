@@ -15,7 +15,7 @@ const Toast: React.FunctionComponent<ModalProps> = ({ setIsOpen, isOpen }) => {
 
   return (
     <Transition appear show={isOpen} as={React.Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={closeModal}>
+      <Dialog data-cy="modal-information" as="div" className="relative z-10" onClose={closeModal}>
         <Transition.Child
           as={React.Fragment}
           enter="ease-out duration-300"
