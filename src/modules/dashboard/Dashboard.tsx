@@ -11,30 +11,27 @@ const Dashboard: React.FunctionComponent = () => {
   const [todos, setTodos] = React.useState<Todos[]>([])
   const [isRequested, setIsRequested] = React.useState<boolean>(true)
   const [showInfo, setShowInfo] = React.useState<boolean>(false)
+  const [indicator, setIndicator] = React.useState<boolean>(false)
 
-  const fetchTodos = async () => {
+  const getActivities = async () => {
     const response = await fetch(`${API_ENDPOINT}/activity-groups?email=0arcetros@gmail.com`)
     const { data } = await response.json()
     setTodos(data)
     setIsRequested(false)
   }
 
-  React.useEffect(() => {
-    fetchTodos()
-  }, [])
-
-  const onAddActivity = () => {
-    const addActivity = async () => {
-      const response = await fetch(`${API_ENDPOINT}/activity-groups/`, {
-        headers: { Accept: "application/json", "Content-Type": "application/json" },
-        method: "POST",
-        body: JSON.stringify({ title: "New Activity", email: "0arcetros@gmail.com" })
-      })
-      const todos = await response.json()
-      return todos
-    }
-    addActivity().then((res) => setTodos([...todos, res]))
+  const addActivity = async () => {
+    await fetch(`${API_ENDPOINT}/activity-groups/`, {
+      headers: { Accept: "application/json", "Content-Type": "application/json" },
+      method: "POST",
+      body: JSON.stringify({ title: "New Activity", email: "0arcetros@gmail.com" })
+    })
+    setIndicator(!indicator)
   }
+
+  React.useEffect(() => {
+    getActivities()
+  }, [indicator])
 
   if (isRequested) {
     return (
@@ -56,7 +53,7 @@ const Dashboard: React.FunctionComponent = () => {
         </h2>
         <button
           data-cy="activity-add-button"
-          onClick={() => onAddActivity()}
+          onClick={addActivity}
           className="bg-[#16ABF8] w-[159px] h-[54px] rounded-[45px] flex items-center text-white justify-center cursor-pointer"
         >
           <span className="flex items-center gap-x-1 font-medium text-lg">
@@ -67,7 +64,12 @@ const Dashboard: React.FunctionComponent = () => {
       {todos.length > 0 ? (
         <ul className="pb-[43px] grid grid-cols-4 gap-5">
           {todos.map((item) => (
-            <TodoItem key={item.id} todo={item} setShowInfo={setShowInfo} fetchTodos={fetchTodos} />
+            <TodoItem
+              key={item.id}
+              todo={item}
+              setShowInfo={setShowInfo}
+              fetchTodos={getActivities}
+            />
           ))}
         </ul>
       ) : (
