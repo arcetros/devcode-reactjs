@@ -1,5 +1,8 @@
 import React from "react"
 import { useParams, Link } from "react-router-dom"
+import { EditText } from "react-edit-text"
+import "react-edit-text/dist/index.css"
+
 import { Todos } from "../../App"
 import { ChevronLeft, Edit, Plus, Sort } from "../../components/Icon"
 import ActivityItem from "../../components/ActivityItem"
@@ -17,10 +20,25 @@ export interface TodoItem extends Todos {
   todo_items: TodoItems[]
 }
 
+const url = "https://todo.api.devcode.gethired.id"
+
 const Detail = () => {
   const { id } = useParams()
   const [todos, setTodos] = React.useState<TodoItem>()
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
+
+  const onSaveActivityTitle = () => {
+    const saveTitle = async () => {
+      const response = await fetch(`${url}/activity-groups/${todos?.id}`, {
+        method: "PATCH",
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({ title: todos?.title })
+      })
+      const newTitle = await response.json()
+      return newTitle
+    }
+    saveTitle()
+  }
 
   React.useEffect(() => {
     const fetchTodos = async () => {
@@ -47,15 +65,29 @@ const Detail = () => {
       <>
         <header className="flex items-center justify-between mt-[43px] pb-[55px]">
           <div className="flex items-center">
-            <Link to="/">
+            <Link to="/" className="mr-5">
               <ChevronLeft />
             </Link>
-            <h2 className="text-4xl font-bold ml-4 flex items-center">
-              {todos?.title}{" "}
-              <span className="ml-4">
-                <Edit />
-              </span>
-            </h2>
+            <EditText
+              className="text-4xl text-neutral-800 font-bold ml-4"
+              name="activity_title"
+              type="text"
+              value={todos?.title}
+              style={{
+                backgroundColor: "transparent",
+                border: "none",
+                fontSize: "2.25rem",
+                fontWeight: 700,
+                padding: 0,
+                outline: "none",
+                color: "#262626"
+              }}
+              onChange={(event) => setTodos({ ...todos, title: event.currentTarget.value })}
+              onSave={onSaveActivityTitle}
+            />
+            <span className="ml-4">
+              <Edit />
+            </span>
           </div>
           <div className="flex gap-x-4">
             {todos?.todo_items.length > 0 && <Sort />}
