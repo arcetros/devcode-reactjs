@@ -1,5 +1,4 @@
 import React from "react"
-import { Dialog, Transition } from "@headlessui/react"
 import { useParams, Link } from "react-router-dom"
 import { EditText } from "react-edit-text"
 import "react-edit-text/dist/index.css"
@@ -111,7 +110,17 @@ const Detail = () => {
         {todos?.todo_items.length > 0 && (
           <ul className="flex flex-col gap-y-[10px] pb-[43px]">
             {todos.todo_items.map((item) => {
-              return <ActivityItem key={item.title} title={item.title} priority={item.priority} />
+              return (
+                <ActivityItem
+                  activityId={id}
+                  fetchTodos={fetchTodos}
+                  setTodos={setTodos}
+                  id={item.id}
+                  key={item.title}
+                  title={item.title}
+                  priority={item.priority}
+                />
+              )
             })}
           </ul>
         )}
