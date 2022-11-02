@@ -1,10 +1,10 @@
 import React from "react"
 import clsx from "clsx"
 
-import { priorityBadge } from "./PriorityBadge"
-import { Edit, Trash } from "../../components/Icon"
+import { priorityBadge } from "../modules/detail/PriorityBadge"
+import { Edit, Trash } from "./Icon"
 
-import type { TodoItems } from "./Detail"
+import type { TodoItems } from "../modules/detail/Detail"
 
 const ActivityItem: React.FunctionComponent<TodoItems> = ({ priority, title }) => {
   const rootBadge = clsx("rounded-full w-3 h-3", {

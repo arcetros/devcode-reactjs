@@ -2,7 +2,7 @@ import React from "react"
 import { useParams, Link } from "react-router-dom"
 import { Todos } from "../../App"
 import { ChevronLeft, Edit, Plus, Sort } from "../../components/Icon"
-import ActivityItem from "./ActivityItem"
+import ActivityItem from "../../components/ActivityItem"
 import EmptyDetail from "./EmptyDetail"
 
 export type TodoItems = {
