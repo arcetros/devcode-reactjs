@@ -14,29 +14,16 @@ export type Todos = {
   created_at: string
 }
 
-const App: React.FunctionComponent = () => {
-  const [todos, setTodos] = React.useState<Todos[]>([])
-
-  React.useEffect(() => {
-    const fetchTodos = async () => {
-      const response = await fetch(
-        "https://todo.api.devcode.gethired.id/activity-groups?email=ivan@skyshi.com"
-      )
-      const todos = await response.json()
-      return todos
-    }
-    fetchTodos().then(({ data }) => setTodos(data))
-  }, [])
-
-  const router = createBrowserRouter(
-    createRoutesFromElements(
-      <>
-        <Route path="/" element={<Dashboard todos={todos} />} />
-        <Route path="/details/:id" element={<Detail />} />
-      </>
-    )
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <>
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/details/:id" element={<Detail />} key={window.location.href} />
+    </>
   )
+)
 
+const App: React.FunctionComponent = () => {
   return (
     <main className="max-w-[1000px] mx-auto flex flex-col">
       <RouterProvider router={router} />
