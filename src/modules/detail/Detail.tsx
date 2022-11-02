@@ -1,10 +1,22 @@
-import React from "react"
+import React, { Fragment } from "react"
 import { useParams, Link } from "react-router-dom"
 import { EditText } from "react-edit-text"
+import { Transition, Listbox } from "@headlessui/react"
 import "react-edit-text/dist/index.css"
 
 import { Todos } from "../../App"
-import { ChevronLeft, Edit, Plus, Sort } from "../../components/Icon"
+import {
+  AZ,
+  Check,
+  ChevronLeft,
+  Edit,
+  Newest,
+  Oldest,
+  Plus,
+  Sort,
+  Unfinished,
+  ZA
+} from "../../components/Icon"
 import ActivityItem from "../../components/ActivityItem"
 import EmptyDetail from "./EmptyDetail"
 import { API_ENDPOINT } from "../../config"
@@ -29,6 +41,7 @@ const Detail = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [openModal, setOpenModal] = React.useState<boolean>(false)
   const [showInfo, setShowInfo] = React.useState<boolean>(false)
+  const [filter, setFilter] = React.useState<string>("")
 
   const onSaveActivityTitle = () => {
     const saveTitle = async () => {
@@ -68,6 +81,47 @@ const Detail = () => {
   }
 
   if (id && todos) {
+    const filters = [
+      {
+        label: "Terbaru",
+        icon: <Newest />,
+        function: () =>
+          setTodos({ ...todos, todo_items: todos.todo_items.sort((a, b) => b.id - a.id) })
+      },
+      {
+        label: "Terlama",
+        icon: <Oldest />,
+        function: () =>
+          setTodos({ ...todos, todo_items: todos.todo_items.sort((a, b) => a.id - b.id) })
+      },
+      {
+        label: "A - Z",
+        icon: <AZ />,
+        function: () =>
+          setTodos({
+            ...todos,
+            todo_items: todos.todo_items.sort((a, b) => a.title.localeCompare(b.title))
+          })
+      },
+      {
+        label: "Z - A",
+        icon: <ZA />,
+        function: () =>
+          setTodos({
+            ...todos,
+            todo_items: todos.todo_items.sort((a, b) => b.title.localeCompare(a.title))
+          })
+      },
+      {
+        label: "Belum selesai",
+        icon: <Unfinished />,
+        function: () =>
+          setTodos({
+            ...todos,
+            todo_items: todos.todo_items.sort((a, b) => b.is_active - a.is_active)
+          })
+      }
+    ]
     return (
       <>
         <header className="flex items-center justify-between mt-[43px] pb-[55px]">
@@ -92,12 +146,48 @@ const Detail = () => {
               onChange={(event) => setTodos({ ...todos, title: event.currentTarget.value })}
               onSave={onSaveActivityTitle}
             />
-            <span className="ml-4">
+            <button className="ml-4">
               <Edit />
-            </span>
+            </button>
           </div>
           <div className="flex gap-x-4">
-            {todos?.todo_items.length > 0 && <Sort />}
+            {todos?.todo_items.length > 0 && (
+              <Listbox value={filter} onChange={(event) => setFilter(event)}>
+                <div className="relative max-w-[205px] mt-1 z-10">
+                  <Listbox.Button>
+                    <Sort />
+                  </Listbox.Button>
+                  <Transition
+                    as={Fragment}
+                    leave="transition ease-in duration-100"
+                    leaveFrom="opacity-100"
+                    leaveTo="opacity-0"
+                  >
+                    <Listbox.Options className="absolute w-[15rem] flex flex-col right-0 mt-1 rounded-md bg-white divide-y text-base shadow-lg ring-black ring-opacity-5 focus:outline-none sm:text-sm z-50">
+                      {filters.map((item) => {
+                        return (
+                          <Listbox.Option
+                            value={item.label}
+                            onClick={item.function}
+                            key={item.label}
+                          >
+                            {({ selected }) => (
+                              <div className="flex justify-between gap-x-4 items-center p-[0.875rem] hover:bg-slate-50 cursor-pointer">
+                                <div className="flex gap-x-4 items-center">
+                                  {item.icon} <span className="text-base">{item.label}</span>
+                                </div>
+
+                                {selected && <Check />}
+                              </div>
+                            )}
+                          </Listbox.Option>
+                        )
+                      })}
+                    </Listbox.Options>
+                  </Transition>
+                </div>
+              </Listbox>
+            )}
             <button
               onClick={() => setOpenModal(true)}
               className="bg-[#16ABF8] w-[159px] h-[54px] rounded-[45px] flex items-center text-white justify-center cursor-pointer"
@@ -112,7 +202,6 @@ const Detail = () => {
         {todos?.todo_items.length > 0 && (
           <ul className="flex flex-col gap-y-[10px] pb-[43px]">
             {todos.todo_items.map((item) => {
-              console.log(item)
               return (
                 <ActivityItem
                   setShowInfo={setShowInfo}
