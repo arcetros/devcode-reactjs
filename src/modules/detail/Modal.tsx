@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { Fragment } from "react"
 import { Dialog, Transition, Listbox } from "@headlessui/react"
 import { Check, Close } from "../../components/Icon"
 import { priorityBadge } from "./PriorityBadge"
-import { TodoItem, TodoItems } from "./Detail"
+import { TodoItem } from "./Detail"
+import { API_ENDPOINT } from "../../config"
 
 type PriorityProps = {
   id: number
@@ -20,6 +22,8 @@ type ModalProps = {
   isOpen: boolean
   setIsOpen: any
   setTodo: React.Dispatch<React.SetStateAction<TodoItem | undefined>>
+  fetchTodos: (activityId: string) => Promise<any>
+  id: string
 }
 
 const PRIORITY: PriorityProps[] = [
@@ -30,11 +34,35 @@ const PRIORITY: PriorityProps[] = [
   { id: 4, item: "very-high", label: "Very High", color: priorityBadge["very-high"] }
 ]
 
-const Modal: React.FunctionComponent<ModalProps> = ({ isOpen, setIsOpen, setTodo }) => {
+const Modal: React.FunctionComponent<ModalProps> = ({
+  isOpen,
+  setIsOpen,
+  setTodo,
+  fetchTodos,
+  id
+}) => {
   const [selected, setSelected] = React.useState<SelectedProps>({ priority: PRIORITY[4] })
 
-  function closeModal() {
+  const closeModal = () => {
     setIsOpen(false)
+  }
+
+  const onSubmitTodo = async () => {
+    const postTodo = async () => {
+      const response = await fetch(`${API_ENDPOINT}/todo-items`, {
+        method: "POST",
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: selected?.title,
+          activity_group_id: Number(id),
+          priority: selected.priority.item
+        })
+      })
+      return response
+    }
+    postTodo()
+      .then(() => fetchTodos(id).then((res) => setTodo(res)))
+      .finally(() => closeModal())
   }
 
   return (
@@ -151,7 +179,7 @@ const Modal: React.FunctionComponent<ModalProps> = ({ isOpen, setIsOpen, setTodo
 
                 <div className="flex border-t py-[15px] px-[40px]">
                   <button
-                    onClick={closeModal}
+                    onClick={() => onSubmitTodo()}
                     className="bg-[#7fc9fa] ml-auto w-[159px] h-[54px] rounded-[45px] flex items-center text-white justify-center cursor-pointer"
                   >
                     <span className="flex items-center gap-x-1 font-medium text-lg">Simpan</span>

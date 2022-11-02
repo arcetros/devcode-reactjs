@@ -32,7 +32,7 @@ const Detail = () => {
   const onSaveActivityTitle = () => {
     const saveTitle = async () => {
       const response = await fetch(`${API_ENDPOINT}/activity-groups/${todos?.id}`, {
-        method: "PATCH",
+        method: "POST",
         headers: { Accept: "application/json", "Content-Type": "application/json" },
         body: JSON.stringify({ title: todos?.title })
       })
@@ -42,14 +42,18 @@ const Detail = () => {
     saveTitle()
   }
 
+  const fetchTodos = async (activityId: string) => {
+    setIsLoading(true)
+    const response = await fetch(`${API_ENDPOINT}/activity-groups/${activityId}`)
+    const todos = await response.json()
+    return todos
+  }
+
   React.useEffect(() => {
-    const fetchTodos = async () => {
-      setIsLoading(true)
-      const response = await fetch(`${API_ENDPOINT}/activity-groups/${id}`)
-      const todos = await response.json()
-      return todos
+    if (!id) {
+      return
     }
-    fetchTodos().then((data) => {
+    fetchTodos(id).then((data) => {
       setTodos(data)
     })
   }, [])
@@ -62,7 +66,7 @@ const Detail = () => {
     )
   }
 
-  if (todos) {
+  if (id && todos) {
     return (
       <>
         <header className="flex items-center justify-between mt-[43px] pb-[55px]">
@@ -111,7 +115,13 @@ const Detail = () => {
             })}
           </ul>
         )}
-        <Modal isOpen={openModal} setIsOpen={setOpenModal} setTodo={setTodos} />
+        <Modal
+          isOpen={openModal}
+          setIsOpen={setOpenModal}
+          setTodo={setTodos}
+          fetchTodos={fetchTodos}
+          id={id}
+        />
       </>
     )
   }
