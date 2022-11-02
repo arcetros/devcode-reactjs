@@ -9,12 +9,13 @@ import ActivityItem from "../../components/ActivityItem"
 import EmptyDetail from "./EmptyDetail"
 import { API_ENDPOINT } from "../../config"
 import Modal from "./Modal"
+import Toast from "../../components/Toast"
 
 export type TodoItems = {
-  id?: number
+  id: number
   title: string
   activity_group_id?: number
-  isActive?: number
+  is_active: number
   priority?: "very-low" | "low" | "normal" | "high" | "very-high" | string
 }
 
@@ -27,6 +28,7 @@ const Detail = () => {
   const [todos, setTodos] = React.useState<TodoItem>()
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [openModal, setOpenModal] = React.useState<boolean>(false)
+  const [showInfo, setShowInfo] = React.useState<boolean>(false)
 
   const onSaveActivityTitle = () => {
     const saveTitle = async () => {
@@ -110,8 +112,11 @@ const Detail = () => {
         {todos?.todo_items.length > 0 && (
           <ul className="flex flex-col gap-y-[10px] pb-[43px]">
             {todos.todo_items.map((item) => {
+              console.log(item)
               return (
                 <ActivityItem
+                  setShowInfo={setShowInfo}
+                  is_active={item.is_active}
                   activityId={id}
                   fetchTodos={fetchTodos}
                   todos={todos}
@@ -132,6 +137,7 @@ const Detail = () => {
           fetchTodos={fetchTodos}
           id={id}
         />
+        <Toast isOpen={showInfo} setIsOpen={setShowInfo} />
       </>
     )
   }

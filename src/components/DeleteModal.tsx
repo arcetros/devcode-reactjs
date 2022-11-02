@@ -12,6 +12,7 @@ type ModalProps = {
   fetchActivity?: () => void
   url: string
   id?: string
+  setShowInfo?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const DeleteModal: React.FunctionComponent<ModalProps> = ({
@@ -21,7 +22,8 @@ const DeleteModal: React.FunctionComponent<ModalProps> = ({
   fetchActivity,
   type,
   label,
-  url
+  url,
+  setShowInfo
 }) => {
   const closeModal = () => {
     setIsOpen(false)
@@ -75,7 +77,11 @@ const DeleteModal: React.FunctionComponent<ModalProps> = ({
                       onClick={() =>
                         handleDelete(url).then(() => {
                           while (fetchTodos && type === "activity") {
-                            fetchTodos()
+                            fetchTodos().then(() => {
+                              if (setShowInfo) {
+                                setShowInfo(true)
+                              }
+                            })
                             break
                           }
                           while (fetchActivity && type === "List Item") {

@@ -8,11 +8,11 @@ import { API_ENDPOINT } from "../config"
 
 type Props = {
   todo: Todos
-  onDelete: (id: number) => void
   fetchTodos: () => Promise<any>
+  setShowInfo: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const TodoItem: React.FunctionComponent<Props> = ({ todo, fetchTodos }) => {
+const TodoItem: React.FunctionComponent<Props> = ({ todo, fetchTodos, setShowInfo }) => {
   const [isOnDelete, setIsOnDelete] = React.useState<boolean>(false)
   const convertDate = new Date(todo.created_at)
   return (
@@ -44,6 +44,7 @@ const TodoItem: React.FunctionComponent<Props> = ({ todo, fetchTodos }) => {
           id={String(todo.id)}
           isOpen={isOnDelete}
           setIsOpen={setIsOnDelete}
+          setShowInfo={setShowInfo}
           fetchTodos={fetchTodos}
           type="activity"
           url={`${API_ENDPOINT}/activity-groups/${todo.id}`}

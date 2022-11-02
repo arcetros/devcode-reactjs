@@ -157,7 +157,7 @@ const Modal: React.FunctionComponent<ModalProps> = ({
                           leaveTo="opacity-0"
                         >
                           <Listbox.Options className="absolute mt-1 max-h-60 w-full rounded-md bg-white py-1 divide-y text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-50">
-                            {PRIORITY.reverse().map((priority, id) => (
+                            {PRIORITY.map((priority, id) => (
                               <Listbox.Option
                                 key={id}
                                 className={({ active }) =>
