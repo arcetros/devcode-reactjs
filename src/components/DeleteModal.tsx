@@ -35,7 +35,7 @@ const DeleteModal: React.FunctionComponent<ModalProps> = ({
 
   return (
     <Transition appear show={isOpen} as={React.Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={closeModal}>
+      <Dialog data-cy="modal-delete" as="div" className="relative z-10" onClose={closeModal}>
         <Transition.Child
           as={React.Fragment}
           enter="ease-out duration-300"
@@ -68,12 +68,14 @@ const DeleteModal: React.FunctionComponent<ModalProps> = ({
                   </div>
                   <div className="flex space-x-4 font-bold">
                     <button
+                      data-cy="modal-delete-cancel-button"
                       className="bg-[#F4F4F4] text-[#4a4a4a] w-[150px] h-[54px] rounded-[45px] flex items-center justify-center cursor-pointer"
                       onClick={closeModal}
                     >
                       <span className="flex items-center gap-x-1 font-medium text-lg">Batal</span>
                     </button>
                     <button
+                      data-cy="modal-delete-confirm-button"
                       onClick={() =>
                         handleDelete(url).then(() => {
                           while (fetchTodos && type === "activity") {

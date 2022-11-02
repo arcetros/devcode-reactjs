@@ -126,10 +126,11 @@ const Detail = () => {
       <>
         <header className="flex items-center justify-between mt-[43px] pb-[55px]">
           <div className="flex items-center">
-            <Link to="/" className="mr-5">
+            <Link data-cy="todo-back-button" to="/" className="mr-5">
               <ChevronLeft />
             </Link>
             <EditText
+              data-cy="todo-title"
               className="text-4xl text-neutral-800 font-bold ml-4"
               name="activity_title"
               type="text"
@@ -146,7 +147,7 @@ const Detail = () => {
               onChange={(event) => setTodos({ ...todos, title: event.currentTarget.value })}
               onSave={onSaveActivityTitle}
             />
-            <button className="ml-4">
+            <button data-cy="todo-title-edit-button" className="ml-4">
               <Edit />
             </button>
           </div>
@@ -154,7 +155,7 @@ const Detail = () => {
             {todos?.todo_items.length > 0 && (
               <Listbox value={filter} onChange={(event) => setFilter(event)}>
                 <div className="relative max-w-[205px] mt-1 z-10">
-                  <Listbox.Button>
+                  <Listbox.Button data-cy="todo-sort-button">
                     <Sort />
                   </Listbox.Button>
                   <Transition
@@ -190,6 +191,7 @@ const Detail = () => {
             )}
             <button
               onClick={() => setOpenModal(true)}
+              data-cy="todo-add-button"
               className="bg-[#16ABF8] w-[159px] h-[54px] rounded-[45px] flex items-center text-white justify-center cursor-pointer"
             >
               <span className="flex items-center gap-x-1 font-medium text-lg">
@@ -198,7 +200,11 @@ const Detail = () => {
             </button>
           </div>
         </header>
-        {todos?.todo_items.length < 1 && <EmptyDetail />}
+        {todos?.todo_items.length < 1 && (
+          <div data-cy="todo-empty-state">
+            <EmptyDetail />
+          </div>
+        )}
         {todos?.todo_items.length > 0 && (
           <ul className="flex flex-col gap-y-[10px] pb-[43px]">
             {todos.todo_items.map((item) => {
