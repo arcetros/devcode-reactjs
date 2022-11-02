@@ -2,6 +2,7 @@ import React from "react"
 import { Todos } from "../../App"
 import { Plus } from "../../components/Icon"
 import TodoItem from "../../components/TodoItem"
+import EmptyDashboard from "./EmptyDashboard"
 
 type Props = {
   todos: Todos[]
@@ -18,11 +19,9 @@ const Dashboard: React.FunctionComponent<Props> = ({ todos }) => {
           </span>
         </div>
       </header>
-      <ul className="pb-8 grid grid-cols-4 gap-x-5">
-        {/* <EmptyDashboard /> */}
-        {todos.map((item) => (
-          <TodoItem key={item.id} todo={item} />
-        ))}
+      {todos.length < 1 && <EmptyDashboard />}
+      <ul className="pb-[43px] grid grid-cols-4 gap-5">
+        {todos.length > 0 && todos.map((item) => <TodoItem key={item.id} todo={item} />)}
       </ul>
     </div>
   )
