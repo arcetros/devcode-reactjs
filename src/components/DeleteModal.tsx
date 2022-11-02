@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react"
 import { Dialog, Transition } from "@headlessui/react"
-import { TodoItem } from "../modules/detail/Detail"
 import { ExclamationMark } from "./Icon"
 
 type ModalProps = {
@@ -9,19 +8,20 @@ type ModalProps = {
   setIsOpen: any
   label: string
   type: "activity" | "List Item"
-  fetchTodos: () => Promise<any>
+  fetchTodos?: () => Promise<any>
+  fetchActivity?: () => void
   url: string
-  id: string
+  id?: string
 }
 
 const DeleteModal: React.FunctionComponent<ModalProps> = ({
   isOpen,
   setIsOpen,
   fetchTodos,
+  fetchActivity,
   type,
   label,
-  url,
-  id
+  url
 }) => {
   const closeModal = () => {
     setIsOpen(false)
@@ -72,7 +72,18 @@ const DeleteModal: React.FunctionComponent<ModalProps> = ({
                       <span className="flex items-center gap-x-1 font-medium text-lg">Batal</span>
                     </button>
                     <button
-                      onClick={() => handleDelete(url).then(() => fetchTodos())}
+                      onClick={() =>
+                        handleDelete(url).then(() => {
+                          while (fetchTodos && type === "activity") {
+                            fetchTodos()
+                            break
+                          }
+                          while (fetchActivity && type === "List Item") {
+                            fetchActivity()
+                            break
+                          }
+                        })
+                      }
                       className="bg-[#ED4C5C] w-[150px] h-[54px] rounded-[45px] flex items-center text-white justify-center cursor-pointer"
                     >
                       <span className="flex items-center gap-x-1 font-medium text-lg">Hapus</span>

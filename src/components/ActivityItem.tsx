@@ -9,6 +9,7 @@ import { Edit, Trash } from "./Icon"
 
 import type { TodoItem, TodoItems } from "../modules/detail/Detail"
 import { API_ENDPOINT } from "../config"
+import DeleteModal from "./DeleteModal"
 
 interface ActivityItem extends TodoItems {
   activityId: string
@@ -26,6 +27,7 @@ const ActivityItem: React.FunctionComponent<ActivityItem> = ({
   setTodos
 }) => {
   const [edit, setEdit] = React.useState<boolean>(false)
+  const [isDelete, setIsDelete] = React.useState<boolean>(false)
 
   const rootBadge = clsx("rounded-full w-3 h-3", {
     [priorityBadge["very-low"]]: priority === "very-low",
@@ -35,8 +37,8 @@ const ActivityItem: React.FunctionComponent<ActivityItem> = ({
     [priorityBadge["very-high"]]: priority === "very-high"
   })
 
-  const onDelete = async () => {
-    await fetch(`${API_ENDPOINT}/todo-items/${id}`, { method: "DELETE" })
+  const onDelete = () => {
+    fetchTodos(activityId).then((res) => setTodos(res))
   }
 
   return (
@@ -53,10 +55,7 @@ const ActivityItem: React.FunctionComponent<ActivityItem> = ({
             <Edit />
           </span>
         </div>
-        <span
-          className="cursor-pointer"
-          onClick={() => onDelete().then(() => fetchTodos(activityId).then((res) => setTodos(res)))}
-        >
+        <span className="cursor-pointer" onClick={() => setIsDelete(true)}>
           <Trash />
         </span>
       </div>
@@ -67,6 +66,14 @@ const ActivityItem: React.FunctionComponent<ActivityItem> = ({
         id={`${id}`}
         isOpen={edit}
         setIsOpen={setEdit}
+      />
+      <DeleteModal
+        isOpen={isDelete}
+        setIsOpen={setIsDelete}
+        label={title}
+        type="List Item"
+        url={`${API_ENDPOINT}/todo-items/${id}`}
+        fetchActivity={onDelete}
       />
     </>
   )

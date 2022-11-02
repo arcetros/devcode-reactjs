@@ -12,7 +12,7 @@ import Modal from "./Modal"
 
 export type TodoItems = {
   id?: number
-  title?: string
+  title: string
   activity_group_id?: number
   isActive?: number
   priority?: "very-low" | "low" | "normal" | "high" | "very-high" | string
