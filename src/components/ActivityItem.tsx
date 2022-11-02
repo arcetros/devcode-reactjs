@@ -8,10 +8,12 @@ import { priorityBadge } from "../modules/detail/PriorityBadge"
 import { Edit, Trash } from "./Icon"
 
 import type { TodoItem, TodoItems } from "../modules/detail/Detail"
+import { API_ENDPOINT } from "../config"
 
 interface ActivityItem extends TodoItems {
   activityId: string
   fetchTodos: (activityId: string) => Promise<any>
+  todos: TodoItem
   setTodos: React.Dispatch<React.SetStateAction<TodoItem | undefined>>
 }
 
@@ -33,6 +35,10 @@ const ActivityItem: React.FunctionComponent<ActivityItem> = ({
     [priorityBadge["very-high"]]: priority === "very-high"
   })
 
+  const onDelete = async () => {
+    await fetch(`${API_ENDPOINT}/todo-items/${id}`, { method: "DELETE" })
+  }
+
   return (
     <>
       <div className="flex justify-between bg-white rounded-xl shadow p-7">
@@ -47,7 +53,12 @@ const ActivityItem: React.FunctionComponent<ActivityItem> = ({
             <Edit />
           </span>
         </div>
-        <Trash />
+        <span
+          className="cursor-pointer"
+          onClick={() => onDelete().then(() => fetchTodos(activityId).then((res) => setTodos(res)))}
+        >
+          <Trash />
+        </span>
       </div>
       <Modal
         setTodo={setTodos}

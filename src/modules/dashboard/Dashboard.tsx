@@ -10,15 +10,15 @@ const Dashboard: React.FunctionComponent = () => {
   const [todos, setTodos] = React.useState<Todos[]>([])
   const [isRequested, setIsRequested] = React.useState<boolean>(true)
 
+  const fetchTodos = async () => {
+    const response = await fetch(`${API_ENDPOINT}/activity-groups?email=0arcetros@gmail.com`)
+    const { data } = await response.json()
+    setTodos(data)
+    setIsRequested(false)
+  }
+
   React.useEffect(() => {
-    const fetchTodos = async () => {
-      const response = await fetch(`${API_ENDPOINT}/activity-groups?email=0arcetros@gmail.com`)
-      const todos = await response.json()
-      return todos
-    }
     fetchTodos()
-      .then(({ data }) => setTodos(data))
-      .finally(() => setIsRequested(false))
   }, [])
 
   const onAddActivity = () => {
@@ -71,7 +71,7 @@ const Dashboard: React.FunctionComponent = () => {
         {todos.length > 0 && (
           <ul className="pb-[43px] grid grid-cols-4 gap-5">
             {todos.map((item) => (
-              <TodoItem key={item.id} todo={item} onDelete={onDelete} />
+              <TodoItem key={item.id} todo={item} onDelete={onDelete} fetchTodos={fetchTodos} />
             ))}
           </ul>
         )}

@@ -3,13 +3,17 @@ import { Link } from "react-router-dom"
 
 import { Trash } from "./Icon"
 import type { Todos } from "../App"
+import DeleteModal from "./DeleteModal"
+import { API_ENDPOINT } from "../config"
 
 type Props = {
   todo: Todos
   onDelete: (id: number) => void
+  fetchTodos: () => Promise<any>
 }
 
-const TodoItem: React.FunctionComponent<Props> = ({ todo, onDelete }) => {
+const TodoItem: React.FunctionComponent<Props> = ({ todo, fetchTodos }) => {
+  const [isOnDelete, setIsOnDelete] = React.useState<boolean>(false)
   const convertDate = new Date(todo.created_at)
   return (
     <li
@@ -33,9 +37,18 @@ const TodoItem: React.FunctionComponent<Props> = ({ todo, onDelete }) => {
           month: "long",
           year: "numeric"
         })}`}</p>
-        <button data-cy="activity-item-delete-button" onClick={() => onDelete(todo.id)}>
+        <button data-cy="activity-item-delete-button" onClick={() => setIsOnDelete(true)}>
           <Trash />
         </button>
+        <DeleteModal
+          id={String(todo.id)}
+          isOpen={isOnDelete}
+          setIsOpen={setIsOnDelete}
+          fetchTodos={fetchTodos}
+          type="activity"
+          url={`${API_ENDPOINT}/activity-groups/${todo.id}`}
+          label={todo.title}
+        />
       </div>
     </li>
   )

@@ -30,8 +30,8 @@ const Detail = () => {
 
   const onSaveActivityTitle = () => {
     const saveTitle = async () => {
-      const response = await fetch(`${API_ENDPOINT}/activity-groups/${todos?.id}`, {
-        method: "POST",
+      const response = await fetch(`${API_ENDPOINT}/activity-groups/${id}`, {
+        method: "PATCH",
         headers: { Accept: "application/json", "Content-Type": "application/json" },
         body: JSON.stringify({ title: todos?.title })
       })
@@ -114,6 +114,7 @@ const Detail = () => {
                 <ActivityItem
                   activityId={id}
                   fetchTodos={fetchTodos}
+                  todos={todos}
                   setTodos={setTodos}
                   id={item.id}
                   key={item.title}
