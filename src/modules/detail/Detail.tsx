@@ -1,4 +1,5 @@
 import React from "react"
+import { Dialog, Transition } from "@headlessui/react"
 import { useParams, Link } from "react-router-dom"
 import { EditText } from "react-edit-text"
 import "react-edit-text/dist/index.css"
@@ -7,29 +8,30 @@ import { Todos } from "../../App"
 import { ChevronLeft, Edit, Plus, Sort } from "../../components/Icon"
 import ActivityItem from "../../components/ActivityItem"
 import EmptyDetail from "./EmptyDetail"
+import { API_ENDPOINT } from "../../config"
+import Modal from "./Modal"
 
 export type TodoItems = {
   id?: number
   title?: string
   activity_group_id?: number
   isActive?: number
-  priority?: "very-low" | "low" | "normal" | "high" | "very-high"
+  priority?: "very-low" | "low" | "normal" | "high" | "very-high" | string
 }
 
 export interface TodoItem extends Todos {
   todo_items: TodoItems[]
 }
 
-const url = "https://todo.api.devcode.gethired.id"
-
 const Detail = () => {
   const { id } = useParams()
   const [todos, setTodos] = React.useState<TodoItem>()
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
+  const [openModal, setOpenModal] = React.useState<boolean>(false)
 
   const onSaveActivityTitle = () => {
     const saveTitle = async () => {
-      const response = await fetch(`${url}/activity-groups/${todos?.id}`, {
+      const response = await fetch(`${API_ENDPOINT}/activity-groups/${todos?.id}`, {
         method: "PATCH",
         headers: { Accept: "application/json", "Content-Type": "application/json" },
         body: JSON.stringify({ title: todos?.title })
@@ -43,7 +45,7 @@ const Detail = () => {
   React.useEffect(() => {
     const fetchTodos = async () => {
       setIsLoading(true)
-      const response = await fetch(`https://todo.api.devcode.gethired.id/activity-groups/${id}`)
+      const response = await fetch(`${API_ENDPOINT}/activity-groups/${id}`)
       const todos = await response.json()
       return todos
     }
@@ -91,11 +93,14 @@ const Detail = () => {
           </div>
           <div className="flex gap-x-4">
             {todos?.todo_items.length > 0 && <Sort />}
-            <div className="bg-[#16ABF8] w-[159px] h-[54px] rounded-[45px] flex items-center text-white justify-center cursor-pointer">
+            <button
+              onClick={() => setOpenModal(true)}
+              className="bg-[#16ABF8] w-[159px] h-[54px] rounded-[45px] flex items-center text-white justify-center cursor-pointer"
+            >
               <span className="flex items-center gap-x-1 font-medium text-lg">
                 <Plus /> Tambah
               </span>
-            </div>
+            </button>
           </div>
         </header>
         {todos?.todo_items.length < 1 && <EmptyDetail />}
@@ -106,6 +111,7 @@ const Detail = () => {
             })}
           </ul>
         )}
+        <Modal isOpen={openModal} setIsOpen={setOpenModal} setTodo={setTodos} />
       </>
     )
   }

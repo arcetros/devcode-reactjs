@@ -1,11 +1,10 @@
 import React from "react"
+import { API_ENDPOINT } from "../../config"
 
 import { Todos } from "../../App"
 import { Plus } from "../../components/Icon"
 import TodoItem from "../../components/TodoItem"
 import EmptyDashboard from "./EmptyDashboard"
-
-const url = "https://todo.api.devcode.gethired.id"
 
 const Dashboard: React.FunctionComponent = () => {
   const [todos, setTodos] = React.useState<Todos[]>([])
@@ -13,7 +12,7 @@ const Dashboard: React.FunctionComponent = () => {
 
   React.useEffect(() => {
     const fetchTodos = async () => {
-      const response = await fetch(`${url}/activity-groups?email=0arcetros@gmail.com`)
+      const response = await fetch(`${API_ENDPOINT}/activity-groups?email=0arcetros@gmail.com`)
       const todos = await response.json()
       return todos
     }
@@ -24,7 +23,7 @@ const Dashboard: React.FunctionComponent = () => {
 
   const onAddActivity = () => {
     const addActivity = async () => {
-      const response = await fetch(`${url}/activity-groups/`, {
+      const response = await fetch(`${API_ENDPOINT}/activity-groups/`, {
         headers: { Accept: "application/json", "Content-Type": "application/json" },
         method: "POST",
         body: JSON.stringify({ title: "New Activity", email: "0arcetros@gmail.com" })
