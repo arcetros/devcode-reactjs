@@ -15,7 +15,7 @@ type Props = {
   setOpenModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
-const ActivityHeader: React.FunctionComponent<Props> = ({
+const Navigation: React.FunctionComponent<Props> = ({
   item,
   filter,
   setFilter,
@@ -42,7 +42,7 @@ const ActivityHeader: React.FunctionComponent<Props> = ({
     })
 
     setOnEditTitle(false)
-    fetchTodos()
+    await fetchTodos()
     return
   }
 
@@ -87,7 +87,7 @@ const ActivityHeader: React.FunctionComponent<Props> = ({
         </button>
       </div>
       <div className="flex gap-x-4">
-        {item?.todo_items.length > 0 && (
+        {item?.todo_items?.length > 0 && (
           <Listbox value={filter} onChange={(event) => setFilter(event)}>
             <div className="relative max-w-[205px] mt-1 z-10">
               <Listbox.Button data-cy="todo-sort-button">
@@ -138,4 +138,4 @@ const ActivityHeader: React.FunctionComponent<Props> = ({
   )
 }
 
-export default ActivityHeader
+export default Navigation

@@ -13,6 +13,8 @@ export type Todos = {
   title?: string
   created_at?: string
   route?: string
+  priority?: string
+  edit?: boolean
 }
 
 const router = createBrowserRouter(
@@ -26,7 +28,7 @@ const router = createBrowserRouter(
 
 const App: React.FunctionComponent = () => {
   return (
-    <main className="max-w-[1000px] mx-auto flex flex-col">
+    <main className="max-w-[1000px] mx-auto flex flex-col pb-16 overflow-y-auto">
       <RouterProvider router={router} />
     </main>
   )

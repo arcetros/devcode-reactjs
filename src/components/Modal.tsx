@@ -1,92 +1,65 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { Fragment } from "react"
 import { Dialog, Transition, Listbox } from "@headlessui/react"
-import { Check, Close } from "../../components/Icon"
-import { priorityBadge } from "../../helpers/badge"
-import { TodoItem } from "../Detail"
-import { API_ENDPOINT } from "../../config"
-
-type PriorityProps = {
-  id: number
-  item: string
-  label: string
-  color: string
-}
+import { Check, Close } from "./Icon"
+import { PriorityOptions } from "../routes/Detail"
+import { Todos } from "../App"
 
 type SelectedProps = {
-  id?: number
-  title: string
-  priority: PriorityProps
+  title?: string
+  priority?: string
 }
 
 type ModalProps = {
   isOpen: boolean
   setIsOpen: any
-  setTodo: React.Dispatch<React.SetStateAction<TodoItem | undefined>>
-  fetchTodos: (activityId: string) => Promise<any>
-  id: string
-  activityId: string
+  priorities: PriorityOptions[]
+  createTodo: (title: string, priority: string) => Promise<void>
+  editTodo: (id: string, title: string, priority: string) => Promise<void>
+  targetData: Todos
+  setTargetData: React.Dispatch<React.SetStateAction<Todos>>
 }
-
-const PRIORITY: PriorityProps[] = [
-  { id: 0, item: "very-low", label: "Very Low", color: priorityBadge["very-low"] },
-  { id: 1, item: "low", label: "Low", color: priorityBadge.low },
-  { id: 2, item: "normal", label: "Normal", color: priorityBadge.normal },
-  { id: 3, item: "high", label: "High", color: priorityBadge.high },
-  { id: 4, item: "very-high", label: "Very High", color: priorityBadge["very-high"] }
-]
 
 const Modal: React.FunctionComponent<ModalProps> = ({
   isOpen,
   setIsOpen,
-  id,
-  fetchTodos,
-  activityId,
-  setTodo
+  priorities,
+  createTodo,
+  editTodo,
+  targetData,
+  setTargetData
 }) => {
-  const [selected, setSelected] = React.useState<SelectedProps>({
-    priority: PRIORITY[4],
-    title: ""
-  })
+  const [selected, setSelected] = React.useState<SelectedProps>({})
 
   const closeModal = () => {
     setIsOpen(false)
   }
 
-  React.useEffect(() => {
-    const fetchTodo = async () => {
-      const response = await fetch(`${API_ENDPOINT}/todo-items/${id}`)
-      const todo = await response.json()
-      return todo
+  const option = () => {
+    if (targetData.id) {
+      editTodo(String(targetData.id), selected.title as string, selected.priority as string).then(
+        () => setTargetData({})
+      )
+      closeModal()
+    } else {
+      createTodo(selected.title as string, selected.priority as string).then(() =>
+        setTargetData({})
+      )
+      closeModal()
     }
-    fetchTodo().then((res: any) =>
-      setSelected({
-        title: res.title,
-        priority: PRIORITY.filter((x) => x.item === res.priority)[0]
-      })
-    )
-  }, [])
-
-  const onSubmitTodo = async () => {
-    const postTodo = async () => {
-      const response = await fetch(`${API_ENDPOINT}/todo-items/${id}`, {
-        method: "PATCH",
-        headers: { Accept: "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: selected?.title,
-          priority: selected.priority.item
-        })
-      })
-      return response
-    }
-    postTodo()
-      .then(() => fetchTodos(activityId).then((res) => setTodo(res)))
-      .finally(() => closeModal())
   }
 
+  React.useEffect(() => {
+    if (targetData.edit) {
+      setSelected({ title: targetData.title, priority: targetData.priority })
+      return
+    }
+    setSelected({ title: "", priority: "very-high" })
+  }, [targetData])
+
   return (
-    <Transition appear show={isOpen} as={React.Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={closeModal}>
+    <Transition appear show={isOpen} as={React.Fragment} data-cy="modal-add">
+      <Dialog as="div" data-cy="modal-add" className="relative z-10" onClose={closeModal}>
         <Transition.Child
           as={React.Fragment}
           enter="ease-out duration-300"
@@ -122,11 +95,11 @@ const Modal: React.FunctionComponent<ModalProps> = ({
 
                 <div className="pt-[38px] pr-[41px] pb-[38px] pl-[30px] relative flex-auto">
                   <label className="text-xs font-bold text-neutral-600">NAMA LIST ITEM</label>
-                  <div className="mt-[9px] mb-[26px]">
+                  <div data-cy="modal-add-name-input" className="mt-[9px] mb-[26px]">
                     <input
                       type="text"
                       name="title"
-                      value={selected.title || ""}
+                      value={selected.title}
                       placeholder="Tambahkan nama activity"
                       onChange={(event) =>
                         setSelected({ ...selected, title: event.currentTarget.value })
@@ -138,17 +111,30 @@ const Modal: React.FunctionComponent<ModalProps> = ({
                   <label className="text-xs font-bold text-neutral-600">PRIORTY</label>
                   <div className="mt-[9px]">
                     <Listbox
-                      value={selected?.priority.item}
-                      onChange={(event) =>
-                        setSelected({ ...selected, priority: PRIORITY[Number(event)] })
-                      }
+                      value={selected.priority}
+                      onChange={(event) => setSelected({ ...selected, priority: event })}
                     >
                       <div className="relative max-w-[205px] mt-1 z-50">
-                        <Listbox.Button className="flex space-x-5 items-center relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white h-[52px] focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
-                          <span
-                            className={`rounded-full w-[14px] h-[14px] ${selected?.priority.color}`}
-                          ></span>
-                          <span className="block truncate">{selected?.priority.label}</span>
+                        <Listbox.Button
+                          className="flex space-x-5 items-center relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white h-[52px] focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
+                          data-cy="modal-add-priority-dropdown"
+                        >
+                          <div
+                            className={`rounded-full w-[14px] h-[14px] ${
+                              selected.priority
+                                ? priorities[
+                                    priorities.findIndex((e) => e.item === selected.priority)
+                                  ]?.color
+                                : ""
+                            }`}
+                          ></div>
+                          <span className="block truncate">
+                            {selected.priority
+                              ? priorities[
+                                  priorities.findIndex((e) => e.item === selected.priority)
+                                ]?.label
+                              : ""}
+                          </span>
                         </Listbox.Button>
                         <Transition
                           as={Fragment}
@@ -157,15 +143,16 @@ const Modal: React.FunctionComponent<ModalProps> = ({
                           leaveTo="opacity-0"
                         >
                           <Listbox.Options className="absolute mt-1 max-h-60 w-full rounded-md bg-white py-1 divide-y text-base shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm z-50">
-                            {PRIORITY.map((priority, id) => (
+                            {priorities.map((priority) => (
                               <Listbox.Option
-                                key={id}
+                                key={priority.item}
+                                data-cy="modal-add-priority-item"
                                 className={({ active }) =>
                                   `relative cursor-pointer select-none py-2 pl-[17px] pr-4 ${
                                     active ? "bg-blue-100" : "text-gray-900"
                                   }`
                                 }
-                                value={priority.id}
+                                value={priority.item}
                               >
                                 {({ selected: selectedActive }) => (
                                   <>
@@ -178,10 +165,10 @@ const Modal: React.FunctionComponent<ModalProps> = ({
                                           selectedActive ? "font-medium" : "font-normal"
                                         }`}
                                       >
-                                        {priority.label}
+                                        {priority?.label}
                                       </span>
                                     </div>
-                                    {priority.item === selected.priority.item && (
+                                    {priority.item === selected.priority && (
                                       <span className="absolute inset-y-0 right-3 flex items-center pl-3">
                                         <Check />
                                       </span>
@@ -199,8 +186,10 @@ const Modal: React.FunctionComponent<ModalProps> = ({
 
                 <div className="flex border-t py-[15px] px-[40px]">
                   <button
-                    onClick={() => onSubmitTodo()}
-                    className="bg-[#7fc9fa] ml-auto w-[159px] h-[54px] rounded-[45px] flex items-center text-white justify-center cursor-pointer"
+                    onClick={() => option()}
+                    data-cy="modal-add-save-button"
+                    disabled={!selected.title}
+                    className="bg-[#7fc9fa] ml-auto w-[159px] h-[54px] rounded-[45px] flex items-center text-white justify-center cursor-pointer disabled:cursor-not-allowed"
                   >
                     <span className="flex items-center gap-x-1 font-medium text-lg">Simpan</span>
                   </button>

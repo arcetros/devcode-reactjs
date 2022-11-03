@@ -1,53 +1,47 @@
 import React from "react"
 import clsx from "clsx"
-import Modal from "../routes/detail/ModalEdit"
 
 import "react-edit-text/dist/index.css"
 
 import { priorityBadge } from "../helpers/badge"
 import { Edit, Trash } from "./Icon"
 
-import type { TodoItem, TodoItems } from "../routes/Detail"
+import type { TodoItems } from "../routes/Detail"
 import { API_ENDPOINT } from "../config"
-import DeleteModal from "./DeleteModal"
+import { Todos } from "../App"
 
-interface ActivityItem extends TodoItems {
-  activityId: string
-  fetchTodos: (activityId: string) => Promise<any>
-  todos: TodoItem
-  setTodos: React.Dispatch<React.SetStateAction<TodoItem | undefined>>
-  setShowInfo: React.Dispatch<React.SetStateAction<boolean>>
-  is_active: number
+interface ActivityItem {
+  item: TodoItems
+  setOnDelete: React.Dispatch<React.SetStateAction<boolean>>
+  setTargetData: React.Dispatch<React.SetStateAction<Todos>>
+  setOpenModal: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ActivityItem: React.FunctionComponent<ActivityItem> = ({
-  activityId,
-  priority,
-  title,
-  id,
-  fetchTodos,
-  setTodos,
-  is_active,
-  setShowInfo
+  item,
+  setOnDelete,
+  setTargetData,
+  setOpenModal
 }) => {
-  const [edit, setEdit] = React.useState<boolean>(false)
-  const [isDelete, setIsDelete] = React.useState<boolean>(false)
-  const [checked, setChecked] = React.useState<boolean>(is_active === 1 ? false : true)
+  const [checked, setChecked] = React.useState<boolean>(item.is_active === 1 ? false : true)
+
+  const handleDelete = () => {
+    setTargetData({ id: item.id, title: item.title, route: "list_item" })
+    setOnDelete(true)
+  }
+
+  const handleEdit = () => {
+    setTargetData({ id: item.id, title: item.title, priority: item.priority, edit: true })
+    setOpenModal(true)
+  }
 
   const rootBadge = clsx("rounded-full w-3 h-3", {
-    [priorityBadge["very-low"]]: priority === "very-low",
-    [priorityBadge.low]: priority === "low",
-    [priorityBadge.normal]: priority === "normal",
-    [priorityBadge.high]: priority === "high",
-    [priorityBadge["very-high"]]: priority === "very-high"
+    [priorityBadge["very-low"]]: item.priority === "very-low",
+    [priorityBadge.low]: item.priority === "low",
+    [priorityBadge.normal]: item.priority === "normal",
+    [priorityBadge.high]: item.priority === "high",
+    [priorityBadge["very-high"]]: item.priority === "very-high"
   })
-
-  const onDelete = () => {
-    fetchTodos(activityId).then((res) => {
-      setTodos(res)
-      setShowInfo(true)
-    })
-  }
 
   return (
     <>
@@ -57,7 +51,7 @@ const ActivityItem: React.FunctionComponent<ActivityItem> = ({
             className="h-6 w-6 flex items-center justify-center mr-5 border border-gray-100"
             type="checkbox"
             defaultChecked={checked}
-            value={id}
+            value={item.id}
             data-cy="todo-item-checkbox"
             onChange={async (event) => {
               setChecked(!checked)
@@ -65,33 +59,23 @@ const ActivityItem: React.FunctionComponent<ActivityItem> = ({
                 method: "PATCH",
                 headers: { Accept: "application/json", "Content-Type": "application/json" },
                 body: JSON.stringify({
-                  is_active: is_active === 1 ? false : true
+                  is_active: item.is_active === 1 ? false : true
                 })
               })
             }}
           />
-          <span aria-label={priority} className={rootBadge}></span>
-          <h1 className={clsx(checked && "line-through", "text-lg")}>{title}</h1>
-          <span onClick={() => setEdit(true)}>
+          <span aria-label={item.priority} className={rootBadge}></span>
+          <h1 className={clsx(checked && "line-through", "text-lg")} data-cy="todo-item-title">
+            {item.title}
+          </h1>
+          <span onClick={handleEdit}>
             <Edit />
           </span>
         </div>
-        <span
-          data-cy="todo-item-delete-button"
-          className="cursor-pointer"
-          onClick={() => setIsDelete(true)}
-        >
+        <button data-cy="todo-item-delete-button" className="cursor-pointer" onClick={handleDelete}>
           <Trash />
-        </span>
+        </button>
       </div>
-      <Modal
-        setTodo={setTodos}
-        fetchTodos={fetchTodos}
-        activityId={activityId}
-        id={`${id}`}
-        isOpen={edit}
-        setIsOpen={setEdit}
-      />
     </>
   )
 }
