@@ -78,7 +78,6 @@ const Detail = () => {
   }
 
   const editTodo = async (id: string, title: string, priority: string) => {
-    console.log(title, priority)
     await fetch(`${API_ENDPOINT}/todo-items/${id}`, {
       method: "PATCH",
       headers: { Accept: "application/json", "Content-Type": "application/json" },
@@ -151,6 +150,7 @@ const Detail = () => {
                   setTargetData={setTargetData}
                   setOnDelete={setOnDelete}
                   setOpenModal={setOpenModal}
+                  fetchTodos={fetchTodos}
                 />
               )
             })}

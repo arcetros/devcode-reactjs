@@ -15,13 +15,15 @@ interface ActivityItem {
   setOnDelete: React.Dispatch<React.SetStateAction<boolean>>
   setTargetData: React.Dispatch<React.SetStateAction<Todos>>
   setOpenModal: React.Dispatch<React.SetStateAction<boolean>>
+  fetchTodos: () => Promise<void>
 }
 
 const ActivityItem: React.FunctionComponent<ActivityItem> = ({
   item,
   setOnDelete,
   setTargetData,
-  setOpenModal
+  setOpenModal,
+  fetchTodos
 }) => {
   const [checked, setChecked] = React.useState<boolean>(item.is_active === 1 ? false : true)
 
@@ -61,7 +63,7 @@ const ActivityItem: React.FunctionComponent<ActivityItem> = ({
                 body: JSON.stringify({
                   is_active: item.is_active === 1 ? false : true
                 })
-              })
+              }).then(() => fetchTodos())
             }}
           />
           <span aria-label={item.priority} className={rootBadge}></span>
