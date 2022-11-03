@@ -7,6 +7,7 @@ import TodoItem from "../components/TodoItem"
 import Toast from "../components/Toast"
 import DeleteModal from "../components/DeleteModal"
 import NoResult from "../components/No-result"
+import Spinner from "../components/Spinner"
 
 const Dashboard: React.FunctionComponent = () => {
   const [todos, setTodos] = React.useState<Todos[]>([])
@@ -34,9 +35,10 @@ const Dashboard: React.FunctionComponent = () => {
 
   const deleteActivity = async (id: string) => {
     await fetch(`${API_ENDPOINT}/activity-groups/${id}`, { method: "DELETE" })
-    setIndicator(!indicator)
+    setIndicator(true)
     setTodos(todos.filter((todo) => todo.id !== Number(id)))
     setOnDelete(false)
+    setShowInfo(true)
   }
 
   React.useEffect(() => {
@@ -44,21 +46,13 @@ const Dashboard: React.FunctionComponent = () => {
   }, [indicator])
 
   if (isRequested) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="w-16 h-16 border-b-2 border-[#16ABF8] rounded-full animate-spin"></div>
-      </div>
-    )
+    return <Spinner />
   }
 
   return (
     <div>
       <header className="flex items-center justify-between mt-[43px] pb-[55px]">
-        <h2
-          data-cy="activity-title"
-          onClick={() => setShowInfo(true)}
-          className="text-4xl font-bold"
-        >
+        <h2 data-cy="activity-title" className="text-4xl font-bold">
           Activity
         </h2>
         <button

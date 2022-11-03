@@ -4,7 +4,7 @@ import Modal from "../routes/detail/ModalEdit"
 
 import "react-edit-text/dist/index.css"
 
-import { priorityBadge } from "../helpers/priorityBadge"
+import { priorityBadge } from "../helpers/badge"
 import { Edit, Trash } from "./Icon"
 
 import type { TodoItem, TodoItems } from "../routes/Detail"

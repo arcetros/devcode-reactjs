@@ -2,7 +2,7 @@
 import React, { Fragment } from "react"
 import { Dialog, Transition, Listbox } from "@headlessui/react"
 import { Check, Close } from "../../components/Icon"
-import { priorityBadge } from "../../helpers/priorityBadge"
+import { priorityBadge } from "../../helpers/badge"
 import { TodoItem } from "../Detail"
 import { API_ENDPOINT } from "../../config"
 

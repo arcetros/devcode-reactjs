@@ -1,27 +1,15 @@
-import React, { Fragment } from "react"
-import { useParams, Link } from "react-router-dom"
-import { EditText } from "react-edit-text"
-import { Transition, Listbox } from "@headlessui/react"
+import React from "react"
+import { useParams } from "react-router-dom"
 import "react-edit-text/dist/index.css"
 
 import { Todos } from "../App"
-import {
-  AZ,
-  Check,
-  ChevronLeft,
-  Edit,
-  Newest,
-  Oldest,
-  Plus,
-  Sort,
-  Unfinished,
-  ZA
-} from "../components/Icon"
 import ActivityItem from "../components/ActivityItem"
 import NoResult from "../components/No-result"
 import { API_ENDPOINT } from "../config"
 import Modal from "./detail/Modal"
 import Toast from "../components/Toast"
+import Spinner from "../components/Spinner"
+import Navigation from "../components/Navigation"
 
 export type TodoItems = {
   id: number
@@ -30,6 +18,8 @@ export type TodoItems = {
   is_active: number
   priority?: "very-low" | "low" | "normal" | "high" | "very-high" | string
 }
+
+export type Filter = "Terbaru" | "Terlama" | "A - Z" | "Z - A" | "Belum selesai"
 
 export interface TodoItem extends Todos {
   todo_items: TodoItems[]
@@ -41,169 +31,60 @@ const Detail = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false)
   const [openModal, setOpenModal] = React.useState<boolean>(false)
   const [showInfo, setShowInfo] = React.useState<boolean>(false)
-  const [filter, setFilter] = React.useState<string>("")
+  const [filter, setFilter] = React.useState<Filter>("Terbaru")
 
-  const onSaveActivityTitle = () => {
-    const saveTitle = async () => {
-      const response = await fetch(`${API_ENDPOINT}/activity-groups/${id}`, {
-        method: "PATCH",
-        headers: { Accept: "application/json", "Content-Type": "application/json" },
-        body: JSON.stringify({ title: todos?.title })
-      })
-      const newTitle = await response.json()
-      return newTitle
-    }
-    saveTitle()
-  }
-
-  const fetchTodos = async (activityId: string) => {
+  const fetchTodos = async () => {
     setIsLoading(true)
-    const response = await fetch(`${API_ENDPOINT}/activity-groups/${activityId}`)
-    const todos = await response.json()
-    return todos
+    await fetch(`${API_ENDPOINT}/activity-groups/${id}`)
+      .then((res) => res.json())
+      .then((data) => setTodos(data))
   }
+
+  const filteredTodos = React.useMemo(() => {
+    let _todos = todos?.todo_items
+
+    if (filter === "Terbaru") {
+      _todos = _todos?.sort((a, b) => b.id - a.id)
+    }
+    if (filter === "Terlama") {
+      _todos = _todos?.sort((a, b) => a.id - b.id)
+    }
+    if (filter === "A - Z") {
+      _todos = _todos?.sort((a, b) => a.title.localeCompare(b.title))
+    }
+    if (filter === "Z - A") {
+      _todos = _todos?.sort((a, b) => b.title.localeCompare(a.title))
+    }
+    if (filter === "Belum selesai") {
+      _todos = _todos?.sort((a, b) => b.is_active - a.is_active)
+    }
+
+    return _todos
+  }, [filter, todos])
 
   React.useEffect(() => {
-    if (!id) {
-      return
-    }
-    fetchTodos(id).then((data) => {
-      setTodos(data)
-    })
+    fetchTodos()
   }, [])
 
   if (!todos?.id && isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="w-16 h-16 border-b-2 border-[#16ABF8] rounded-full animate-spin"></div>
-      </div>
-    )
+    return <Spinner />
   }
 
   if (id && todos) {
-    const filters = [
-      {
-        label: "Terbaru",
-        icon: <Newest />,
-        function: () =>
-          setTodos({ ...todos, todo_items: todos.todo_items.sort((a, b) => b.id - a.id) })
-      },
-      {
-        label: "Terlama",
-        icon: <Oldest />,
-        function: () =>
-          setTodos({ ...todos, todo_items: todos.todo_items.sort((a, b) => a.id - b.id) })
-      },
-      {
-        label: "A - Z",
-        icon: <AZ />,
-        function: () =>
-          setTodos({
-            ...todos,
-            todo_items: todos.todo_items.sort((a, b) => a.title.localeCompare(b.title))
-          })
-      },
-      {
-        label: "Z - A",
-        icon: <ZA />,
-        function: () =>
-          setTodos({
-            ...todos,
-            todo_items: todos.todo_items.sort((a, b) => b.title.localeCompare(a.title))
-          })
-      },
-      {
-        label: "Belum selesai",
-        icon: <Unfinished />,
-        function: () =>
-          setTodos({
-            ...todos,
-            todo_items: todos.todo_items.sort((a, b) => b.is_active - a.is_active)
-          })
-      }
-    ]
     return (
-      <>
-        <header className="flex items-center justify-between mt-[43px] pb-[55px]">
-          <div className="flex items-center">
-            <Link data-cy="todo-back-button" to="/" className="mr-5">
-              <ChevronLeft />
-            </Link>
-            <EditText
-              data-cy="todo-title"
-              className="text-4xl text-neutral-800 font-bold ml-4"
-              name="activity_title"
-              type="text"
-              value={todos?.title}
-              style={{
-                backgroundColor: "transparent",
-                border: "none",
-                fontSize: "2.25rem",
-                fontWeight: 700,
-                padding: 0,
-                outline: "none",
-                color: "#262626"
-              }}
-              onChange={(event) => setTodos({ ...todos, title: event.currentTarget.value })}
-              onSave={onSaveActivityTitle}
-            />
-            <button data-cy="todo-title-edit-button" className="ml-4">
-              <Edit />
-            </button>
-          </div>
-          <div className="flex gap-x-4">
-            {todos?.todo_items.length > 0 && (
-              <Listbox value={filter} onChange={(event) => setFilter(event)}>
-                <div className="relative max-w-[205px] mt-1 z-10">
-                  <Listbox.Button data-cy="todo-sort-button">
-                    <Sort />
-                  </Listbox.Button>
-                  <Transition
-                    as={Fragment}
-                    leave="transition ease-in duration-100"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
-                  >
-                    <Listbox.Options className="absolute w-[15rem] flex flex-col right-0 mt-1 rounded-md bg-white divide-y text-base shadow-lg ring-black ring-opacity-5 focus:outline-none sm:text-sm z-50">
-                      {filters.map((item) => {
-                        return (
-                          <Listbox.Option
-                            value={item.label}
-                            onClick={item.function}
-                            key={item.label}
-                          >
-                            {({ selected }) => (
-                              <div className="flex justify-between gap-x-4 items-center p-[0.875rem] hover:bg-slate-50 cursor-pointer">
-                                <div className="flex gap-x-4 items-center">
-                                  {item.icon} <span className="text-base">{item.label}</span>
-                                </div>
-
-                                {selected && <Check />}
-                              </div>
-                            )}
-                          </Listbox.Option>
-                        )
-                      })}
-                    </Listbox.Options>
-                  </Transition>
-                </div>
-              </Listbox>
-            )}
-            <button
-              onClick={() => setOpenModal(true)}
-              data-cy="todo-add-button"
-              className="bg-[#16ABF8] w-[159px] h-[54px] rounded-[45px] flex items-center text-white justify-center cursor-pointer"
-            >
-              <span className="flex items-center gap-x-1 font-medium text-lg">
-                <Plus /> Tambah
-              </span>
-            </button>
-          </div>
-        </header>
+      <React.Fragment>
+        <Navigation
+          isActivity
+          fetchTodos={fetchTodos}
+          filter={filter}
+          setFilter={setFilter}
+          item={todos}
+          setOpenModal={setOpenModal}
+        />
         {todos?.todo_items.length < 1 && <NoResult dashboard={false} tag="todo-empty-state" />}
         {todos?.todo_items.length > 0 && (
           <ul className="flex flex-col gap-y-[10px] pb-[43px]">
-            {todos.todo_items.map((item) => {
+            {filteredTodos?.map((item) => {
               return (
                 <ActivityItem
                   setShowInfo={setShowInfo}
@@ -229,7 +110,7 @@ const Detail = () => {
           id={id}
         />
         <Toast isOpen={showInfo} setIsOpen={setShowInfo} />
-      </>
+      </React.Fragment>
     )
   }
 
