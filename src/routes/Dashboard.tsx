@@ -1,16 +1,19 @@
 import React from "react"
-import { API_ENDPOINT } from "../../config"
+import { API_ENDPOINT } from "../config"
 
-import { Todos } from "../../App"
-import { Plus } from "../../components/Icon"
-import TodoItem from "../../components/TodoItem"
-import EmptyDashboard from "./EmptyDashboard"
-import Toast from "../../components/Toast"
+import { Todos } from "../App"
+import { Plus } from "../components/Icon"
+import TodoItem from "../components/TodoItem"
+import Toast from "../components/Toast"
+import DeleteModal from "../components/DeleteModal"
+import NoResult from "../components/No-result"
 
 const Dashboard: React.FunctionComponent = () => {
   const [todos, setTodos] = React.useState<Todos[]>([])
+  const [todo, setTodo] = React.useState<Todos>({})
   const [isRequested, setIsRequested] = React.useState<boolean>(true)
   const [showInfo, setShowInfo] = React.useState<boolean>(false)
+  const [onDelete, setOnDelete] = React.useState<boolean>(false)
   const [indicator, setIndicator] = React.useState<boolean>(false)
 
   const getActivities = async () => {
@@ -27,6 +30,13 @@ const Dashboard: React.FunctionComponent = () => {
       body: JSON.stringify({ title: "New Activity", email: "0arcetros@gmail.com" })
     })
     setIndicator(!indicator)
+  }
+
+  const deleteActivity = async (id: string) => {
+    await fetch(`${API_ENDPOINT}/activity-groups/${id}`, { method: "DELETE" })
+    setIndicator(!indicator)
+    setTodos(todos.filter((todo) => todo.id !== Number(id)))
+    setOnDelete(false)
   }
 
   React.useEffect(() => {
@@ -61,20 +71,21 @@ const Dashboard: React.FunctionComponent = () => {
           </span>
         </button>
       </header>
-      {todos.length > 0 ? (
+      {todos.length == 0 ? (
+        <NoResult dashboard tag="activity-empty-state" />
+      ) : (
         <ul className="pb-[43px] grid grid-cols-4 gap-5">
           {todos.map((item) => (
-            <TodoItem
-              key={item.id}
-              todo={item}
-              setShowInfo={setShowInfo}
-              fetchTodos={getActivities}
-            />
+            <TodoItem key={item.id} todo={item} setTodo={setTodo} setOnDelete={setOnDelete} />
           ))}
         </ul>
-      ) : (
-        <EmptyDashboard />
       )}
+      <DeleteModal
+        setIsOpen={setOnDelete}
+        isOpen={onDelete}
+        activity={todo}
+        onDelete={deleteActivity}
+      />
       <Toast isOpen={showInfo} setIsOpen={setShowInfo} />
     </div>
   )

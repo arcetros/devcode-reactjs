@@ -1,13 +1,13 @@
 import React from "react"
 import clsx from "clsx"
-import Modal from "../modules/detail/ModalEdit"
+import Modal from "../routes/detail/ModalEdit"
 
 import "react-edit-text/dist/index.css"
 
-import { priorityBadge } from "../modules/detail/PriorityBadge"
+import { priorityBadge } from "../helpers/priorityBadge"
 import { Edit, Trash } from "./Icon"
 
-import type { TodoItem, TodoItems } from "../modules/detail/Detail"
+import type { TodoItem, TodoItems } from "../routes/Detail"
 import { API_ENDPOINT } from "../config"
 import DeleteModal from "./DeleteModal"
 
@@ -91,14 +91,6 @@ const ActivityItem: React.FunctionComponent<ActivityItem> = ({
         id={`${id}`}
         isOpen={edit}
         setIsOpen={setEdit}
-      />
-      <DeleteModal
-        isOpen={isDelete}
-        setIsOpen={setIsDelete}
-        label={title}
-        type="List Item"
-        url={`${API_ENDPOINT}/todo-items/${id}`}
-        fetchActivity={onDelete}
       />
     </>
   )

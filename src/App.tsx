@@ -5,13 +5,14 @@ import {
   createRoutesFromElements,
   Route
 } from "react-router-dom"
-import Dashboard from "./modules/dashboard/Dashboard"
-import Detail from "./modules/detail/Detail"
+import Dashboard from "./routes/Dashboard"
+import Detail from "./routes/Detail"
 
 export type Todos = {
-  id: number
-  title: string
-  created_at: string
+  id?: number
+  title?: string
+  created_at?: string
+  route?: string
 }
 
 const router = createBrowserRouter(

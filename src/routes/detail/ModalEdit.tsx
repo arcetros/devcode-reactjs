@@ -2,8 +2,8 @@
 import React, { Fragment } from "react"
 import { Dialog, Transition, Listbox } from "@headlessui/react"
 import { Check, Close } from "../../components/Icon"
-import { priorityBadge } from "./PriorityBadge"
-import { TodoItem } from "./Detail"
+import { priorityBadge } from "../../helpers/priorityBadge"
+import { TodoItem } from "../Detail"
 import { API_ENDPOINT } from "../../config"
 
 type PriorityProps = {
@@ -14,7 +14,8 @@ type PriorityProps = {
 }
 
 type SelectedProps = {
-  title?: string
+  id?: number
+  title: string
   priority: PriorityProps
 }
 
@@ -24,6 +25,7 @@ type ModalProps = {
   setTodo: React.Dispatch<React.SetStateAction<TodoItem | undefined>>
   fetchTodos: (activityId: string) => Promise<any>
   id: string
+  activityId: string
 }
 
 const PRIORITY: PriorityProps[] = [
@@ -37,31 +39,48 @@ const PRIORITY: PriorityProps[] = [
 const Modal: React.FunctionComponent<ModalProps> = ({
   isOpen,
   setIsOpen,
-  setTodo,
+  id,
   fetchTodos,
-  id
+  activityId,
+  setTodo
 }) => {
-  const [selected, setSelected] = React.useState<SelectedProps>({ priority: PRIORITY[4] })
+  const [selected, setSelected] = React.useState<SelectedProps>({
+    priority: PRIORITY[4],
+    title: ""
+  })
 
   const closeModal = () => {
     setIsOpen(false)
   }
 
+  React.useEffect(() => {
+    const fetchTodo = async () => {
+      const response = await fetch(`${API_ENDPOINT}/todo-items/${id}`)
+      const todo = await response.json()
+      return todo
+    }
+    fetchTodo().then((res: any) =>
+      setSelected({
+        title: res.title,
+        priority: PRIORITY.filter((x) => x.item === res.priority)[0]
+      })
+    )
+  }, [])
+
   const onSubmitTodo = async () => {
     const postTodo = async () => {
-      const response = await fetch(`${API_ENDPOINT}/todo-items`, {
-        method: "POST",
+      const response = await fetch(`${API_ENDPOINT}/todo-items/${id}`, {
+        method: "PATCH",
         headers: { Accept: "application/json", "Content-Type": "application/json" },
         body: JSON.stringify({
           title: selected?.title,
-          activity_group_id: Number(id),
           priority: selected.priority.item
         })
       })
       return response
     }
     postTodo()
-      .then(() => fetchTodos(id).then((res) => setTodo(res)))
+      .then(() => fetchTodos(activityId).then((res) => setTodo(res)))
       .finally(() => closeModal())
   }
 
@@ -103,10 +122,11 @@ const Modal: React.FunctionComponent<ModalProps> = ({
 
                 <div className="pt-[38px] pr-[41px] pb-[38px] pl-[30px] relative flex-auto">
                   <label className="text-xs font-bold text-neutral-600">NAMA LIST ITEM</label>
-                  <div data-cy="modal-add-name-input" className="mt-[9px] mb-[26px]">
+                  <div className="mt-[9px] mb-[26px]">
                     <input
                       type="text"
                       name="title"
+                      value={selected.title || ""}
                       placeholder="Tambahkan nama activity"
                       onChange={(event) =>
                         setSelected({ ...selected, title: event.currentTarget.value })
@@ -124,10 +144,7 @@ const Modal: React.FunctionComponent<ModalProps> = ({
                       }
                     >
                       <div className="relative max-w-[205px] mt-1 z-50">
-                        <Listbox.Button
-                          className="flex space-x-5 items-center relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white h-[52px] focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm"
-                          data-cy="modal-add-priority-dropdown"
-                        >
+                        <Listbox.Button className="flex space-x-5 items-center relative w-full cursor-default rounded-lg bg-white py-2 pl-3 pr-10 text-left border focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white h-[52px] focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm">
                           <span
                             className={`rounded-full w-[14px] h-[14px] ${selected?.priority.color}`}
                           ></span>
@@ -183,9 +200,7 @@ const Modal: React.FunctionComponent<ModalProps> = ({
                 <div className="flex border-t py-[15px] px-[40px]">
                   <button
                     onClick={() => onSubmitTodo()}
-                    data-cy="modal-add-save-button"
-                    disabled={!selected.title}
-                    className="bg-[#7fc9fa] ml-auto w-[159px] h-[54px] rounded-[45px] flex items-center text-white justify-center cursor-pointer disabled:cursor-not-allowed"
+                    className="bg-[#7fc9fa] ml-auto w-[159px] h-[54px] rounded-[45px] flex items-center text-white justify-center cursor-pointer"
                   >
                     <span className="flex items-center gap-x-1 font-medium text-lg">Simpan</span>
                   </button>

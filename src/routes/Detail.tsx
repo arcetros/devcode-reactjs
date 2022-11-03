@@ -4,7 +4,7 @@ import { EditText } from "react-edit-text"
 import { Transition, Listbox } from "@headlessui/react"
 import "react-edit-text/dist/index.css"
 
-import { Todos } from "../../App"
+import { Todos } from "../App"
 import {
   AZ,
   Check,
@@ -16,12 +16,12 @@ import {
   Sort,
   Unfinished,
   ZA
-} from "../../components/Icon"
-import ActivityItem from "../../components/ActivityItem"
-import EmptyDetail from "./EmptyDetail"
-import { API_ENDPOINT } from "../../config"
-import Modal from "./Modal"
-import Toast from "../../components/Toast"
+} from "../components/Icon"
+import ActivityItem from "../components/ActivityItem"
+import NoResult from "../components/No-result"
+import { API_ENDPOINT } from "../config"
+import Modal from "./detail/Modal"
+import Toast from "../components/Toast"
 
 export type TodoItems = {
   id: number
@@ -200,11 +200,7 @@ const Detail = () => {
             </button>
           </div>
         </header>
-        {todos?.todo_items.length < 1 && (
-          <div data-cy="todo-empty-state">
-            <EmptyDetail />
-          </div>
-        )}
+        {todos?.todo_items.length < 1 && <NoResult dashboard={false} tag="todo-empty-state" />}
         {todos?.todo_items.length > 0 && (
           <ul className="flex flex-col gap-y-[10px] pb-[43px]">
             {todos.todo_items.map((item) => {

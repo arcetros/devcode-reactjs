@@ -2,35 +2,23 @@
 import React from "react"
 import { Dialog, Transition } from "@headlessui/react"
 import { ExclamationMark } from "./Icon"
+import { Todos } from "../App"
 
 type ModalProps = {
   isOpen: boolean
   setIsOpen: any
-  label: string
-  type: "activity" | "List Item"
-  fetchTodos?: () => Promise<any>
-  fetchActivity?: () => void
-  url: string
-  id?: string
-  setShowInfo?: React.Dispatch<React.SetStateAction<boolean>>
+  activity: Todos
+  onDelete: (id: string) => Promise<void>
 }
 
 const DeleteModal: React.FunctionComponent<ModalProps> = ({
   isOpen,
   setIsOpen,
-  fetchTodos,
-  fetchActivity,
-  type,
-  label,
-  url,
-  setShowInfo
+  activity,
+  onDelete
 }) => {
   const closeModal = () => {
     setIsOpen(false)
-  }
-
-  const handleDelete = async (url: string) => {
-    await fetch(url, { method: "DELETE" })
   }
 
   return (
@@ -63,8 +51,8 @@ const DeleteModal: React.FunctionComponent<ModalProps> = ({
                 <div className="flex flex-col items-center justify-center py-[3.125rem] px-[1.875rem] gap-x-[0.625rem] gap-y-[2.25rem]">
                   <ExclamationMark />
                   <div className="text-center">
-                    <p className="font-medium">Apakah yakin ingin menghapus {type}</p>
-                    <b>&quot;{label}&quot;</b> ?
+                    <p className="font-medium">Apakah yakin ingin menghapus {activity.route}</p>
+                    <b>&quot;{activity.title}&quot;</b> ?
                   </div>
                   <div className="flex space-x-4 font-bold">
                     <button
@@ -76,22 +64,7 @@ const DeleteModal: React.FunctionComponent<ModalProps> = ({
                     </button>
                     <button
                       data-cy="modal-delete-confirm-button"
-                      onClick={() =>
-                        handleDelete(url).then(() => {
-                          while (fetchTodos && type === "activity") {
-                            fetchTodos().then(() => {
-                              if (setShowInfo) {
-                                setShowInfo(true)
-                              }
-                            })
-                            break
-                          }
-                          while (fetchActivity && type === "List Item") {
-                            fetchActivity()
-                            break
-                          }
-                        })
-                      }
+                      onClick={() => onDelete(String(activity.id))}
                       className="bg-[#ED4C5C] w-[150px] h-[54px] rounded-[45px] flex items-center text-white justify-center cursor-pointer"
                     >
                       <span className="flex items-center gap-x-1 font-medium text-lg">Hapus</span>
